@@ -81,6 +81,14 @@ const getDataFromJwt = (token) => {
   return data;
 };
 
+const errorJson = (status, error) => {
+  return {
+    status: status,
+    message: "Error",
+    error: error,
+  };
+};
+
 module.exports = {
   emptyOrRows,
   ecryptSHA256,
@@ -94,4 +102,5 @@ module.exports = {
   pad,
   generateToken,
   getDataFromJwt,
+  errorJson,
 };

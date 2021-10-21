@@ -46,7 +46,8 @@ const editWithoutPhoto = async (data) => {
     title=?,
     description=?,
     type=?,
-    amount=?
+    amount=?,
+    updated_at=now()
     where
     id_transaction=?
     `,

@@ -86,9 +86,9 @@ router.post(
 router.put(
   "/edit",
   upload.array(),
-  query("id_transaction")
+  body("id_transaction")
     .notEmpty()
-    .withMessage("id_transaction query required"),
+    .withMessage("id_transaction field required"),
   body("id_transaction_category")
     .notEmpty()
     .withMessage("id_transaction_category field required"),
@@ -100,9 +100,14 @@ router.put(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const { id_transaction } = req.query;
-    const { id_transaction_category, title, description, type, amount } =
-      req.body;
+    const {
+      id_transaction,
+      id_transaction_category,
+      title,
+      description,
+      type,
+      amount,
+    } = req.body;
     try {
       const checkTransactionAvailable = await transaction.getOne(
         id_transaction
@@ -121,6 +126,8 @@ router.put(
             status: "success",
           });
         }
+      } else {
+        res.status(500).json(helper.errorJson(404, "id_transaction not found"));
       }
     } catch (error) {
       res.status(500).json(helper.errorJson(500, error));
@@ -142,17 +149,21 @@ router.delete(
     const { id_transaction } = req.query;
     try {
       const target = await transaction.getOne(id_transaction);
-      fs.unlink(
-        process.cwd() +
-          "/public/data/images/transaction_photo/" +
-          target[0].photo_transaction,
-        () => {}
-      );
-      const resultDelete = await transaction.remove(id_transaction);
-      if (resultDelete.affectedRows) {
-        res.status(200).json({
-          status: "success",
-        });
+      if (target.length > 0) {
+        fs.unlink(
+          process.cwd() +
+            "/public/data/images/transaction_photo/" +
+            target[0].photo_transaction,
+          () => {}
+        );
+        const resultDelete = await transaction.remove(id_transaction);
+        if (resultDelete.affectedRows) {
+          res.status(200).json({
+            status: "success",
+          });
+        }
+      } else {
+        res.status(500).json(helper.errorJson(404, "id_transaction not found"));
       }
     } catch (error) {
       res.status(500).json(helper.errorJson(500, error));

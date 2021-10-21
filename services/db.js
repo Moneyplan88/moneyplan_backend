@@ -7,6 +7,9 @@ const query = async (sql, params) => {
   return results;
 };
 
+const escape = (text) => mysql.escape(text);
+
 module.exports = {
   query,
+  escape,
 };

@@ -8,7 +8,7 @@ const config = {
     database: process.env.DB_NAME || "express_rest_api",
     connectTimeout: 10000,
   },
-  secret_token: "eheheheh",
+  secret_token: "maimanienaq",
   session_secret_key: "secret_session_key",
   session_setting: {
     cookie: { maxAge: 1000 * 60 * 60 * 24 }, // a day in milliseconds

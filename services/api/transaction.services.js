@@ -22,12 +22,13 @@ const create = async (data) => {
   const id_transaction = "TR" + helper.generateUUID();
   const resultCreate = await db.query(
     `INSERT into transaction
-    (id_transaction, id_transaction_category, title, description, type, amount, photo_transaction)
-    values (?,?,?,?,?,?,?)
+    (id_transaction, id_transaction_category, id_user_wallet, title, description, type, amount, photo_transaction)
+    values (?,?,?,?,?,?,?,?)
   `,
     [
       id_transaction,
       data.id_transaction_category,
+      data.id_user_wallet,
       data.title,
       data.description ?? null,
       data.type,
@@ -43,6 +44,7 @@ const editWithoutPhoto = async (data) => {
     `UPDATE transaction
     set
     id_transaction_category=?,
+    id_user_wallet=?,
     title=?,
     description=?,
     type=?,
@@ -53,6 +55,7 @@ const editWithoutPhoto = async (data) => {
     `,
     [
       data.id_transaction_category,
+      data.id_user_wallet,
       data.title,
       data.description ?? null,
       data.type,

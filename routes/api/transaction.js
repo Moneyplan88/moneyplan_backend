@@ -37,6 +37,9 @@ router.post(
   body("id_transaction_category")
     .notEmpty()
     .withMessage("id_transaction_category field required"),
+  body("id_user_wallet")
+    .notEmpty()
+    .withMessage("id_user_wallet field required"),
   body("title").notEmpty().withMessage("title field required"),
   body("type").notEmpty().withMessage("type field required"),
   body("amount").notEmpty().withMessage("amount field required"),
@@ -51,8 +54,14 @@ router.post(
     var uploadedPath;
     if (req.files[0]) uploadedPath = process.cwd() + "/" + req.files[0].path;
 
-    const { id_transaction_category, title, description, type, amount } =
-      req.body;
+    const {
+      id_transaction_category,
+      id_user_wallet,
+      title,
+      description,
+      type,
+      amount,
+    } = req.body;
     try {
       let photo_transaction_filename =
         helper.generateUUID() + req.files[0].filename;
@@ -65,6 +74,7 @@ router.post(
       );
       const resultInsert = await transaction.create({
         id_transaction_category,
+        id_user_wallet,
         title,
         description,
         type,
@@ -92,6 +102,9 @@ router.put(
   body("id_transaction_category")
     .notEmpty()
     .withMessage("id_transaction_category field required"),
+  body("id_user_wallet")
+    .notEmpty()
+    .withMessage("id_user_wallet field required"),
   body("title").notEmpty().withMessage("title field required"),
   body("type").notEmpty().withMessage("type field required"),
   body("amount").notEmpty().withMessage("amount field required"),
@@ -103,6 +116,7 @@ router.put(
     const {
       id_transaction,
       id_transaction_category,
+      id_user_wallet,
       title,
       description,
       type,
@@ -116,6 +130,7 @@ router.put(
         const resultUpdateTransaction = await transaction.editWithoutPhoto({
           id_transaction,
           id_transaction_category,
+          id_user_wallet,
           title,
           description,
           type,

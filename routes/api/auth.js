@@ -11,7 +11,7 @@ router.post(
     .notEmpty()
     .withMessage("email field required")
     .isEmail()
-    .withMessage("email field must be and email"),
+    .withMessage("email field must be an email"),
   body("password").notEmpty().withMessage("password field required"),
   async (req, res, next) => {
     const errors = validationResult(req);

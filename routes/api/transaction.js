@@ -63,15 +63,21 @@ router.post(
       amount,
     } = req.body;
     try {
-      let photo_transaction_filename =
-        helper.generateUUID() + req.files[0].filename;
-      fs.rename(
-        uploadedPath,
-        process.cwd() +
-          "/public/data/images/transaction_photo/" +
-          photo_transaction_filename,
-        () => {}
-      );
+      let photo_transaction_filename;
+      if (req.files[0]) {
+        photo_transaction_filename =
+          helper.generateUUID() + req.files[0].filename;
+        fs.rename(
+          uploadedPath,
+          process.cwd() +
+            "/public/data/images/transaction_photo/" +
+            photo_transaction_filename,
+          () => {}
+        );
+      } else {
+        photo_transaction_filename = null;
+      }
+
       const resultInsert = await transaction.create({
         id_transaction_category,
         id_user_wallet,

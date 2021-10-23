@@ -27,24 +27,6 @@ router.post(
   }
 );
 
-router.get(
-  "/user-info",
-  header("Authorization")
-    .notEmpty()
-    .withMessage("Authorization headers required"),
-  async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    try {
-      res.json(await auth.userData(req));
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
 router.post(
   "/register",
   upload.array(),
@@ -63,6 +45,7 @@ router.post(
     try {
       res.json(await auth.register(req));
     } catch (error) {
+      res.status(500).json(helper.errorJson(500, error));
       next(error);
     }
   }

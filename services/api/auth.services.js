@@ -15,16 +15,14 @@ const login = async (req) => {
   );
   if (rows) {
     const token = generateToken(rows);
-    let tokenize =
-      token.substring(0, 40) +
-      helper.generateUUID().slice(-15) +
-      token.substring(40);
     return {
+      status: "success",
       message: "Login success",
-      token: tokenize,
+      token,
     };
   }
   return {
+    status: "error",
     message: "Login failed",
   };
 };
@@ -35,6 +33,7 @@ const register = async (req) => {
   ]);
   if (checkEmail.length) {
     return {
+      status: "error",
       message: "Email already taken",
     };
   }
@@ -52,6 +51,7 @@ const register = async (req) => {
   );
   if (!resultInsert.affectedRows) {
     return {
+      status: "error",
       message: "Register failed",
     };
   }
@@ -60,39 +60,10 @@ const register = async (req) => {
     [req.body.email, password]
   );
   const token = generateToken(rows);
-  let tokenize =
-    token.substring(0, 40) +
-    helper.generateUUID().slice(-15) +
-    token.substring(40);
   return {
+    status: "success",
     message: "Register success",
-    token: tokenize,
-  };
-};
-
-const userData = (req) => {
-  const bearerString = req.headers.authorization;
-  const token = bearerString.split(" ")[1];
-  var data = null;
-  jwt.verify(
-    token.substring(0, 40) + token.substring(40 + 15),
-    config.secret_token,
-    (err, value) => {
-      data = value.data[0];
-    }
-  );
-  data = {
-    id_user: data.id_user,
-    email: data.email,
-    name: data.name,
-    photo_link: data.photo_link,
-    email_verified_date: data.email_verified_date,
-    dark_mode: data.dark_mode,
-    created_at: data.created_at,
-    updated_at: data.updated_at,
-  };
-  return {
-    data,
+    token,
   };
 };
 
@@ -143,12 +114,17 @@ const requestVerification = async (req) => {
 };
 
 const generateToken = (user) => {
-  return jwt.sign({ data: user }, secretToken, { expiresIn: "24h" });
+  const token = jwt.sign({ data: user }, secretToken, { expiresIn: "24h" });
+  let tokenize =
+    token.substring(0, 40) +
+    helper.generateUUID().slice(-15) +
+    token.substring(40);
+  return tokenize;
 };
 
 module.exports = {
   login,
   register,
-  userData,
   requestVerification,
+  generateToken,
 };

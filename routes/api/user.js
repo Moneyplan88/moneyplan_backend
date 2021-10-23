@@ -29,9 +29,7 @@ router.post(
   "/edit",
   upload.array("photo_user"),
   middleware.verifyToken,
-  body("email").notEmpty().withMessage("email field required"),
   body("password").notEmpty().withMessage("password field required"),
-  body("name").notEmpty().withMessage("name field required"),
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

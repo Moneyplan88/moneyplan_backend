@@ -49,15 +49,11 @@ const edit = async (userOriginalData, data) => {
     id_user=?
     `,
     [
-      data.email,
+      data.email ?? userOriginalData.email,
       helper.ecryptSHA256(data.password),
-      data.name,
-      data.photo_user == null ? userOriginalData.photo_user : data.photo_user,
-      data.email_verified_date === "empty"
-        ? null
-        : data.email_verified_date ??
-          userOriginalData.email_verified_date ??
-          null,
+      data.name ?? userOriginalData.name,
+      data.photo_user ?? userOriginalData.photo_user,
+      data.email_verified_date ?? userOriginalData.email_verified_date,
       ["on", "off"].includes(data.dark_mode)
         ? data.dark_mode
         : userOriginalData.dark_mode ?? null,

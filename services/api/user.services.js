@@ -52,7 +52,7 @@ const edit = async (userOriginalData, data) => {
       data.email,
       helper.ecryptSHA256(data.password),
       data.name,
-      data.photo_user === null ? userOriginalData.photo_user : data.photo_user,
+      data.photo_user == null ? userOriginalData.photo_user : data.photo_user,
       data.email_verified_date === "empty"
         ? null
         : data.email_verified_date ??

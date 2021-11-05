@@ -97,10 +97,10 @@ router.put(
     const { id_user_wallet, wallet_name, balance } = req.body;
     try {
       const dataWalletOriginal = await wallet.getWalletById(id_user_wallet);
-      const resultUpdate = await wallet.edit(dataWalletOriginal, {
+      const resultUpdate = await wallet.edit({
         id_user_wallet,
-        wallet_name,
-        balance,
+        wallet_name: wallet_name ?? dataWalletOriginal.wallet_name,
+        balance: balance ?? dataWalletOriginal.balance,
       });
       if (resultUpdate.affectedRows) {
         res.status(200).json({
@@ -136,6 +136,38 @@ router.put(
         balance,
       });
       if (resultAddBalance.affectedRows) {
+        res.status(200).json({
+          status: "success",
+        });
+      }
+    } catch (error) {
+      res.status(500).json(helper.errorJson(500, error));
+      next(error);
+    }
+  }
+);
+
+router.delete(
+  "/remove",
+  middleware.verifyToken,
+  query("id_user_wallet")
+    .notEmpty()
+    .withMessage("id_user_wallet query required"),
+  async (req, res, next) => {
+    // Validation handler
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { id_user_wallet } = req.query;
+    try {
+      const userData = user.userDataJWT(req);
+      const resultRemove = await wallet.remove({
+        id_user_wallet,
+        id_user: userData.id_user,
+      });
+      if (resultRemove.affectedRows) {
         res.status(200).json({
           status: "success",
         });

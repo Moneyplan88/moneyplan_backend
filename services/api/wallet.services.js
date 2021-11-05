@@ -33,7 +33,7 @@ const create = async (data) => {
   return resultInsert;
 };
 
-const edit = async (dataWallet, data) => {
+const edit = async (data) => {
   const resultUpdate = await db.query(
     `UPDATE user_wallet
     set
@@ -43,11 +43,7 @@ const edit = async (dataWallet, data) => {
     where
     id_user_wallet=?
     `,
-    [
-      data.wallet_name ?? dataWallet.wallet_name,
-      data.balance ?? dataWallet.balance,
-      data.id_user_wallet,
-    ]
+    [data.wallet_name, data.balance, data.id_user_wallet]
   );
   return resultUpdate;
 };
@@ -66,10 +62,19 @@ const addBalance = async (data) => {
   return resultUpdate;
 };
 
+const remove = async (data) => {
+  const resultDelete = await db.query(
+    `DELETE from user_wallet where id_user_wallet=? and id_user=?`,
+    [data.id_user_wallet, data.id_user]
+  );
+  return resultDelete;
+};
+
 module.exports = {
   selfWallet,
   getWalletById,
   create,
   edit,
   addBalance,
+  remove,
 };

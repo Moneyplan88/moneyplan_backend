@@ -8,63 +8,71 @@ const ejs = require("ejs");
 const secretToken = config.secret_token;
 
 const login = async (req) => {
-  const password = helper.ecryptSHA256(req.body.password);
-  const rows = await db.query(
-    "select * from user where email=? and password=?",
-    [req.body.email, password]
-  );
-  if (rows) {
-    const token = generateToken(rows);
+  try {
+    const password = helper.ecryptSHA256(req.body.password);
+    const rows = await db.query(
+      "select * from user where email=? and password=?",
+      [req.body.email, password]
+    );
+    if (rows.length) {
+      const token = generateToken(rows);
+      return {
+        status: "success",
+        message: "Login success",
+        token,
+      };
+    }
     return {
-      status: "success",
-      message: "Login success",
-      token,
+      status: "error",
+      message: "Login failed",
     };
+  } catch (error) {
+    return helper.errorJson(500, error);
   }
-  return {
-    status: "error",
-    message: "Login failed",
-  };
 };
 
 const register = async (req) => {
-  const checkEmail = await db.query(`select * from user where email=?`, [
-    req.body.email,
-  ]);
-  if (checkEmail.length) {
-    return {
-      status: "error",
-      message: "Email already taken",
-    };
-  }
-  const id_user = "U" + helper.generateUUID();
-  const password = helper.ecryptSHA256(req.body.password);
-  const resultInsert = await db.query(
-    `insert into user(id_user, email, password, name, photo_link) values (?,?,?,?,?)`,
-    [
-      id_user,
+  try {
+    const checkEmail = await db.query(`select * from user where email=?`, [
       req.body.email,
-      password,
-      req.body.name,
-      req.body.photo_link ?? null,
-    ]
-  );
-  if (!resultInsert.affectedRows) {
+    ]);
+    if (checkEmail.length) {
+      return {
+        status: "error",
+        message: "Email already taken",
+      };
+    }
+    const id_user = "U" + helper.generateUUID();
+    const password = helper.ecryptSHA256(req.body.password);
+    const resultInsert = await db.query(
+      `insert into user(id_user, email, password, name, photo_user) values (?,?,?,?,?)`,
+      [
+        id_user,
+        req.body.email,
+        password,
+        req.body.name,
+        req.body.photo_user ?? null,
+      ]
+    );
+    if (!resultInsert.affectedRows) {
+      return {
+        status: "error",
+        message: "Register failed",
+      };
+    }
+    const rows = await db.query(
+      "select * from user where email=? and password=?",
+      [req.body.email, password]
+    );
+    const token = generateToken(rows);
     return {
-      status: "error",
-      message: "Register failed",
+      status: "success",
+      message: "Register success",
+      token,
     };
+  } catch (error) {
+    return helper.errorJson(500, error);
   }
-  const rows = await db.query(
-    "select * from user where email=? and password=?",
-    [req.body.email, password]
-  );
-  const token = generateToken(rows);
-  return {
-    status: "success",
-    message: "Register success",
-    token,
-  };
 };
 
 const requestVerification = async (req) => {

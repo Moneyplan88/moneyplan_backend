@@ -11,16 +11,28 @@ const helper = require("../../helper");
 router.get("/info", middleware.verifyToken, (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json(
+      helper.responseCustom({
+        success: false,
+        errors: errors.array(),
+      })
+    );
   }
   try {
     const userData = user.userDataJWT(req);
-    res.status(200).json({
-      status: "success",
-      data: userData,
-    });
+    res.status(200).json(
+      helper.responseCustom({
+        success: true,
+        data: userData,
+      })
+    );
   } catch (error) {
-    res.status(500).json(helper.errorJson(500, error));
+    res.status(500).json(
+      helper.responseCustom({
+        success: false,
+        errors: error,
+      })
+    );
     next(error);
   }
 });
@@ -33,7 +45,12 @@ router.post(
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(
+        helper.responseCustom({
+          success: false,
+          errors: errors.array(),
+        })
+      );
     }
 
     // Get uploaded path
@@ -69,14 +86,23 @@ router.post(
       if (resultEdit.affectedRows) {
         const currentUserData = await user.userDataById(userData.id_user);
         const newToken = auth.generateToken(currentUserData);
-        res.status(200).json({
-          status: "success",
-          message: "Please use this new token after user update",
-          token: newToken,
-        });
+        res.status(200).json(
+          helper.responseCustom({
+            success: true,
+            data: {
+              message: "Please use this new token after user update",
+              token: newToken,
+            },
+          })
+        );
       }
     } catch (error) {
-      res.status(500).json(helper.errorJson(500, error));
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
       next(error);
     }
   }

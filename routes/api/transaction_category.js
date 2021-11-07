@@ -12,22 +12,42 @@ router.get("/", async (req, res, next) => {
     if (!id_transaction_category) {
       // Show All Categori
       const categoryList = await transactionCategory.getAll();
-      res.status(200).json({
-        status: "success",
-        data: categoryList,
-      });
+      res.status(200).json(
+        helper.responseCustom({
+          success: true,
+          data: categoryList,
+        })
+      );
     } else {
       // Get one only
       const categoryOne = await transactionCategory.getOne(
         id_transaction_category
       );
-      res.status(200).json({
-        status: "success",
-        data: categoryOne[0],
-      });
+      if (categoryOne.length) {
+        res.status(200).json(
+          helper.responseCustom({
+            success: true,
+            data: categoryOne[0],
+          })
+        );
+      } else {
+        res.status(500).json(
+          helper.responseCustom({
+            success: false,
+            errors: {
+              message: "transaction category not found",
+            },
+          })
+        );
+      }
     }
   } catch (error) {
-    res.status(500).json(helper.errorJson(500, error));
+    res.status(500).json(
+      helper.responseCustom({
+        success: false,
+        errors: error,
+      })
+    );
     next(error);
   }
 });
@@ -40,7 +60,12 @@ router.post(
     // Validation handler
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(
+        helper.responseCustom({
+          success: false,
+          errors: errors.array(),
+        })
+      );
     }
 
     const { category_name } = req.body;
@@ -49,12 +74,19 @@ router.post(
         category_name,
       });
       if (resultInsert.affectedRows) {
-        res.status(200).json({
-          status: "success",
-        });
+        res.status(200).json(
+          helper.responseCustom({
+            success: true,
+          })
+        );
       }
     } catch (error) {
-      res.status(500).json(helper.errorJson(500, error));
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
       next(error);
     }
   }
@@ -71,7 +103,12 @@ router.put(
     // Validation handler
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(
+        helper.responseCustom({
+          success: false,
+          errors: errors.array(),
+        })
+      );
     }
 
     const { id_transaction_category, category_name } = req.body;
@@ -85,17 +122,29 @@ router.put(
           category_name,
         });
         if (resultUpdate.affectedRows) {
-          res.status(200).json({
-            status: "success",
-          });
+          res.status(200).json(
+            helper.responseCustom({
+              success: true,
+            })
+          );
         }
       } else {
-        res
-          .status(500)
-          .json(helper.errorJson(404, "id_transaction_category not found"));
+        res.status(404).json(
+          helper.responseCustom({
+            success: false,
+            errors: {
+              message: "transaction category not found",
+            },
+          })
+        );
       }
     } catch (error) {
-      res.status(500).json(helper.errorJson(500, error));
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
       next(error);
     }
   }
@@ -110,7 +159,12 @@ router.delete(
     // Validation handler
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(
+        helper.responseCustom({
+          success: false,
+          errors: errors.array(),
+        })
+      );
     }
 
     const { id_transaction_category } = req.query;
@@ -123,17 +177,29 @@ router.delete(
           id_transaction_category
         );
         if (resultRemove.affectedRows) {
-          res.status(200).json({
-            status: "success",
-          });
+          res.status(200).json(
+            helper.responseCustom({
+              success: true,
+            })
+          );
         }
       } else {
-        res
-          .status(500)
-          .json(helper.errorJson(404, "id_transaction_category not found"));
+        res.status(404).json(
+          helper.responseCustom({
+            success: false,
+            errors: {
+              message: "transaction category not found",
+            },
+          })
+        );
       }
     } catch (error) {
-      res.status(500).json(helper.errorJson(500, error));
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
       next(error);
     }
   }

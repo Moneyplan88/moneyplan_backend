@@ -89,6 +89,14 @@ const errorJson = (status, error) => {
   };
 };
 
+const responseCustom = ({ success = false, data = null, errors = null }) => {
+  return {
+    success,
+    data,
+    errors,
+  };
+};
+
 module.exports = {
   emptyOrRows,
   ecryptSHA256,
@@ -103,4 +111,5 @@ module.exports = {
   generateToken,
   getDataFromJwt,
   errorJson,
+  responseCustom,
 };

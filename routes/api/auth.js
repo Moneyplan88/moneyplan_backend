@@ -3,6 +3,7 @@ const router = express.Router();
 const { body, validationResult, header } = require("express-validator");
 const auth = require("../../services/api/auth.services");
 const upload = require("../../services/multer");
+const helper = require("../../helper");
 
 router.post(
   "/login",
@@ -16,12 +17,44 @@ router.post(
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(
+        helper.responseCustom({
+          success: false,
+          errors: errors.array(),
+        })
+      );
     }
+
+    const { email, password } = req.body;
     try {
-      res.json(await auth.login(req));
+      const resultLogin = await auth.login({ email, password });
+      const token = auth.generateToken(resultLogin);
+      if (resultLogin.length) {
+        res.status(200).json(
+          helper.responseCustom({
+            success: true,
+            data: {
+              token,
+            },
+          })
+        );
+      } else {
+        res.status(500).json(
+          helper.responseCustom({
+            success: false,
+            errors: {
+              message: "Login failed",
+            },
+          })
+        );
+      }
     } catch (error) {
-      console.error(`Error logging in `, error.message);
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
       next(error);
     }
   }
@@ -40,12 +73,59 @@ router.post(
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(
+        helper.responseCustom({
+          success: false,
+          errors: errors.array(),
+        })
+      );
     }
+
+    const { email, name, password } = req.body;
     try {
-      res.json(await auth.register(req));
+      const checkEmail = await auth.checkEmail(email);
+      if (checkEmail.length) {
+        res.status(200).json(
+          helper.responseCustom({
+            success: false,
+            errors: {
+              message: "Email already in use",
+            },
+          })
+        );
+        return;
+      }
+      const resultRegister = await auth.register({ email, name, password });
+      if (resultRegister.affectedRows) {
+        const resultLogin = await auth.login({ email, password });
+        const token = auth.generateToken(resultLogin);
+        if (resultLogin.length) {
+          res.status(200).json(
+            helper.responseCustom({
+              success: true,
+              data: {
+                token,
+              },
+            })
+          );
+        }
+      } else {
+        res.status(500).json(
+          helper.responseCustom({
+            success: false,
+            errors: {
+              message: "Register failed",
+            },
+          })
+        );
+      }
     } catch (error) {
-      res.status(500).json(helper.errorJson(500, error));
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
       next(error);
     }
   }

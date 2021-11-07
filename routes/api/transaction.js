@@ -16,20 +16,40 @@ router.get("/", async (req, res, next) => {
     if (!id_transaction) {
       // Fetch all transaction
       const transactionList = await transaction.getAll();
-      res.status(200).json({
-        status: "success",
-        data: transactionList,
-      });
+      res.status(200).json(
+        helper.responseCustom({
+          success: true,
+          data: transactionList,
+        })
+      );
     } else {
       // Fetch one by id
       const transactionOne = await transaction.getOne(id_transaction);
-      res.status(200).json({
-        status: "success",
-        data: transactionOne,
-      });
+      if (transactionOne.length) {
+        res.status(200).json(
+          helper.responseCustom({
+            success: true,
+            data: transactionOne[0],
+          })
+        );
+      } else {
+        res.status(404).json(
+          helper.responseCustom({
+            success: false,
+            errors: {
+              message: "id_transaction not found",
+            },
+          })
+        );
+      }
     }
   } catch (error) {
-    res.status(500).json(helper.errorJson(500, error));
+    res.status(500).json(
+      helper.responseCustom({
+        success: false,
+        errors: error,
+      })
+    );
     next(error);
   }
 });
@@ -46,23 +66,43 @@ router.get(
         const transactionListUser = await transaction.getAllUserTransaction({
           id_user: userData.id_user,
         });
-        res.status(200).json({
-          status: "success",
-          data: transactionListUser,
-        });
+        res.status(200).json(
+          helper.responseCustom({
+            success: true,
+            data: transactionListUser,
+          })
+        );
       } else {
         // Fetch one user transaction
         const transactionUser = await transaction.getOneUserTransaction({
           id_user: userData.id_user,
           id_transaction,
         });
-        res.status(200).json({
-          status: "success",
-          data: transactionUser,
-        });
+        if (transactionUser.length) {
+          res.status(200).json(
+            helper.responseCustom({
+              success: true,
+              data: transactionUser[0],
+            })
+          );
+        } else {
+          res.status(404).json(
+            helper.responseCustom({
+              success: false,
+              errors: {
+                message: "id_transaction not found",
+              },
+            })
+          );
+        }
       }
     } catch (error) {
-      res.status(500).json(helper.errorJson(500, error));
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
       next(error);
     }
   }
@@ -85,7 +125,12 @@ router.post(
     // Validation handler
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(
+        helper.responseCustom({
+          success: false,
+          errors: errors.array(),
+        })
+      );
     }
 
     // Get uploaded path
@@ -142,12 +187,19 @@ router.post(
         });
       }
       if (resultInsert.affectedRows && resultAddWallet.affectedRows) {
-        res.status(200).json({
-          status: "success",
-        });
+        res.status(200).json(
+          helper.responseCustom({
+            success: true,
+          })
+        );
       }
     } catch (error) {
-      res.status(500).json(helper.errorJson(500, error));
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
       next(error);
     }
   }
@@ -172,7 +224,12 @@ router.put(
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(
+        helper.responseCustom({
+          success: false,
+          errors: errors.array(),
+        })
+      );
     }
     const {
       id_transaction,
@@ -186,7 +243,7 @@ router.put(
     const amountInt = parseInt(amount);
     try {
       const transactionData = await transaction.getOne(id_transaction);
-      if (transactionData) {
+      if (transactionData.length) {
         let photo_transaction_filename;
         if (req.files[0]) {
           photo_transaction_filename =
@@ -203,14 +260,14 @@ router.put(
             uploadedPath,
             process.cwd() +
               "/public/data/images/transaction_photo/" +
-              transactionData.photo_transaction,
+              transactionData[0].photo_transaction,
             () => {}
           );
         } else {
-          photo_transaction_filename = transactionData.photo_transaction;
+          photo_transaction_filename = transactionData[0].photo_transaction;
         }
 
-        const resultUpdateTransaction = await transaction.editWithoutPhoto({
+        const resultUpdateTransaction = await transaction.edit({
           id_transaction,
           id_transaction_category,
           id_user_wallet,
@@ -222,17 +279,17 @@ router.put(
         });
 
         let resultAdjustWallet;
-        if (transactionData.id_user_wallet !== id_user_wallet) {
+        if (transactionData[0].id_user_wallet !== id_user_wallet) {
           // Change Wallet
-          if (transactionData.type === "expense") {
+          if (transactionData[0].type === "expense") {
             await wallet.addBalance({
-              id_user_wallet: transactionData.id_user_wallet,
-              balance: transactionData.amount,
+              id_user_wallet: transactionData[0].id_user_wallet,
+              balance: transactionData[0].amount,
             });
-          } else if (transactionData.type === "income") {
+          } else if (transactionData[0].type === "income") {
             await wallet.addBalance({
-              id_user_wallet: transactionData.id_user_wallet,
-              balance: -transactionData.amount,
+              id_user_wallet: transactionData[0].id_user_wallet,
+              balance: -transactionData[0].amount,
             });
           }
           if (type === "expense") {
@@ -248,29 +305,32 @@ router.put(
           }
         } else {
           // Adjust Balance Wallet
-          if (transactionData.type === "expense" && type === "income") {
+          if (transactionData[0].type === "expense" && type === "income") {
             // Type changing from expense to income
             resultAdjustWallet = await wallet.addBalance({
               id_user_wallet,
-              balance: amountInt + transactionData.amount,
+              balance: amountInt + transactionData[0].amount,
             });
-          } else if (transactionData.type === "income" && type === "expense") {
+          } else if (
+            transactionData[0].type === "income" &&
+            type === "expense"
+          ) {
             // Type changing from income to expense
             resultAdjustWallet = await wallet.addBalance({
               id_user_wallet,
-              balance: -(amountInt + transactionData.amount),
+              balance: -(amountInt + transactionData[0].amount),
             });
           } else if (type === "income") {
             // Type not changing, still income
             resultAdjustWallet = await wallet.addBalance({
               id_user_wallet,
-              balance: amountInt - transactionData.amount,
+              balance: amountInt - transactionData[0].amount,
             });
           } else if (type === "expense") {
             // Type not changing, still expense
             resultAdjustWallet = await wallet.addBalance({
               id_user_wallet,
-              balance: -(amountInt - transactionData.amount),
+              balance: -(amountInt - transactionData[0].amount),
             });
           }
         }
@@ -279,15 +339,29 @@ router.put(
           resultUpdateTransaction.affectedRows &&
           resultAdjustWallet.affectedRows
         ) {
-          res.status(200).json({
-            status: "success",
-          });
+          res.status(200).json(
+            helper.responseCustom({
+              success: true,
+            })
+          );
         }
       } else {
-        res.status(500).json(helper.errorJson(404, "id_transaction not found"));
+        res.status(404).json(
+          helper.responseCustom({
+            success: false,
+            errors: {
+              message: "id_transaction not found",
+            },
+          })
+        );
       }
     } catch (error) {
-      res.status(500).json(helper.errorJson(500, error));
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
       next(error);
     }
   }
@@ -302,45 +376,64 @@ router.delete(
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(
+        helper.responseCustom({
+          success: false,
+          errors: errors.array(),
+        })
+      );
     }
     const { id_transaction } = req.query;
     try {
       const transactionData = await transaction.getOne(id_transaction);
-      if (transactionData) {
+      if (transactionData.length) {
         fs.unlink(
           process.cwd() +
             "/public/data/images/transaction_photo/" +
-            transactionData.photo_transaction,
+            transactionData[0].photo_transaction,
           () => {}
         );
         const resultDelete = await transaction.remove(id_transaction);
 
         var resultAdjustWallet;
-        if (transactionData.type === "income") {
+        if (transactionData[0].type === "income") {
           // Type not changing, still income
           resultAdjustWallet = await wallet.addBalance({
-            id_user_wallet: transactionData.id_user_wallet,
-            balance: -transactionData.amount,
+            id_user_wallet: transactionData[0].id_user_wallet,
+            balance: -transactionData[0].amount,
           });
-        } else if (transactionData.type === "expense") {
+        } else if (transactionData[0].type === "expense") {
           // Type not changing, still expense
           resultAdjustWallet = await wallet.addBalance({
-            id_user_wallet: transactionData.id_user_wallet,
-            balance: transactionData.amount,
+            id_user_wallet: transactionData[0].id_user_wallet,
+            balance: transactionData[0].amount,
           });
         }
 
         if (resultDelete.affectedRows && resultAdjustWallet.affectedRows) {
-          res.status(200).json({
-            status: "success",
-          });
+          res.status(200).json(
+            helper.responseCustom({
+              success: true,
+            })
+          );
         }
       } else {
-        res.status(500).json(helper.errorJson(404, "id_transaction not found"));
+        res.status(404).json(
+          helper.responseCustom({
+            success: false,
+            errors: {
+              message: "id_transaction not found",
+            },
+          })
+        );
       }
     } catch (error) {
-      res.status(500).json(helper.errorJson(500, error));
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
       next(error);
     }
   }

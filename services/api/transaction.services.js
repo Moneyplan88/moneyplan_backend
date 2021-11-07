@@ -20,7 +20,7 @@ const getOne = async (id_transaction) => {
     `,
     [id_transaction]
   );
-  return result[0];
+  return result;
 };
 
 const getAllUserTransaction = async (data) => {
@@ -49,7 +49,7 @@ const getOneUserTransaction = async (data) => {
     `,
     [data.id_user, data.id_transaction]
   );
-  return result[0];
+  return result;
 };
 
 const create = async (data) => {

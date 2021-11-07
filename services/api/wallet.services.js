@@ -16,7 +16,7 @@ const getWalletById = async (id_user_wallet) => {
     `SELECT * from user_wallet where id_user_wallet=?`,
     [id_user_wallet]
   );
-  return result[0];
+  return result;
 };
 
 const create = async (data) => {

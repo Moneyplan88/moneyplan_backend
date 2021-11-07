@@ -37,7 +37,7 @@ router.get("/", async (req, res, next) => {
           helper.responseCustom({
             success: false,
             errors: {
-              message: "id_transaction not found",
+              message: "transaction not found",
             },
           })
         );
@@ -90,7 +90,7 @@ router.get(
             helper.responseCustom({
               success: false,
               errors: {
-                message: "id_transaction not found",
+                message: "transaction not found",
               },
             })
           );
@@ -350,7 +350,7 @@ router.put(
           helper.responseCustom({
             success: false,
             errors: {
-              message: "id_transaction not found",
+              message: "transaction not found",
             },
           })
         );
@@ -422,7 +422,7 @@ router.delete(
           helper.responseCustom({
             success: false,
             errors: {
-              message: "id_transaction not found",
+              message: "transaction not found",
             },
           })
         );

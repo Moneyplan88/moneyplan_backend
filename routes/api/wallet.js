@@ -11,12 +11,19 @@ router.get("/self-wallet", middleware.verifyToken, async (req, res, next) => {
   try {
     const userData = user.userDataJWT(req);
     const selfWallet = await wallet.selfWallet(userData.id_user);
-    res.status(200).json({
-      status: "success",
-      data: selfWallet,
-    });
+    res.status(200).json(
+      helper.responseCustom({
+        success: true,
+        data: selfWallet,
+      })
+    );
   } catch (error) {
-    res.status(500).json(helper.errorJson(500, error));
+    res.status(500).json(
+      helper.responseCustom({
+        success: false,
+        errors: error,
+      })
+    );
     next(error);
   }
 });
@@ -31,18 +38,39 @@ router.get(
     // Validation handler
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(
+        helper.responseCustom({
+          success: false,
+          errors: errors.array(),
+        })
+      );
     }
 
     const { id_user_wallet } = req.query;
     try {
       const walletData = await wallet.getWalletById(id_user_wallet);
-      res.status(200).json({
-        status: "success",
-        data: walletData,
-      });
+      if (walletData.length) {
+        res.status(200).json({
+          status: "success",
+          data: walletData[0],
+        });
+      } else {
+        res.status(404).json(
+          helper.responseCustom({
+            success: false,
+            errors: {
+              message: "wallet not found",
+            },
+          })
+        );
+      }
     } catch (error) {
-      res.status(500).json(helper.errorJson(500, error));
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
       next(error);
     }
   }
@@ -57,7 +85,12 @@ router.post(
     // Validation handler
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(
+        helper.responseCustom({
+          success: false,
+          errors: errors.array(),
+        })
+      );
     }
 
     const { wallet_name, balance } = req.body;
@@ -69,12 +102,20 @@ router.post(
         balance,
       });
       if (resultInsert.affectedRows) {
-        res.status(200).json({
-          status: "success",
-        });
+        res.status(200).json(
+          helper.responseCustom({
+            success: true,
+          })
+        );
       }
     } catch (error) {
-      res.status(500).json(helper.errorJson(500, error));
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
+      f;
       next(error);
     }
   }
@@ -91,7 +132,12 @@ router.put(
     // Validation handler
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(
+        helper.responseCustom({
+          success: false,
+          errors: errors.array(),
+        })
+      );
     }
 
     const { id_user_wallet, wallet_name, balance } = req.body;
@@ -103,12 +149,19 @@ router.put(
         balance: balance ?? dataWalletOriginal.balance,
       });
       if (resultUpdate.affectedRows) {
-        res.status(200).json({
-          status: "success",
-        });
+        res.status(200).json(
+          helper.responseCustom({
+            success: true,
+          })
+        );
       }
     } catch (error) {
-      res.status(500).json(helper.errorJson(500, error));
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
       next(error);
     }
   }
@@ -126,7 +179,12 @@ router.put(
     // Validation handler
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(
+        helper.responseCustom({
+          success: false,
+          errors: errors.array(),
+        })
+      );
     }
 
     const { id_user_wallet, balance } = req.body;
@@ -136,12 +194,19 @@ router.put(
         balance,
       });
       if (resultAddBalance.affectedRows) {
-        res.status(200).json({
-          status: "success",
-        });
+        res.status(200).json(
+          helper.responseCustom({
+            success: true,
+          })
+        );
       }
     } catch (error) {
-      res.status(500).json(helper.errorJson(500, error));
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
       next(error);
     }
   }
@@ -157,7 +222,12 @@ router.delete(
     // Validation handler
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(
+        helper.responseCustom({
+          success: false,
+          errors: errors.array(),
+        })
+      );
     }
 
     const { id_user_wallet } = req.query;
@@ -168,12 +238,19 @@ router.delete(
         id_user: userData.id_user,
       });
       if (resultRemove.affectedRows) {
-        res.status(200).json({
-          status: "success",
-        });
+        res.status(200).json(
+          helper.responseCustom({
+            success: true,
+          })
+        );
       }
     } catch (error) {
-      res.status(500).json(helper.errorJson(500, error));
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
       next(error);
     }
   }

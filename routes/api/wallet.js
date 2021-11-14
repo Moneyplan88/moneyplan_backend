@@ -28,6 +28,36 @@ router.get("/self-wallet", middleware.verifyToken, async (req, res, next) => {
   }
 });
 
+router.get("/total-balance", middleware.verifyToken, async (req, res, next) => {
+  try {
+    const userData = user.userDataJWT(req);
+    const selfWallet = await wallet.selfWallet(userData.id_user);
+    let total_balance = 0;
+    let wallet_list = [];
+    selfWallet.forEach((item) => {
+      total_balance += item.balance;
+      wallet_list.push(item.wallet_name);
+    });
+    res.status(200).json(
+      helper.responseCustom({
+        success: true,
+        data: {
+          total_balance,
+          wallet_list,
+        },
+      })
+    );
+  } catch (error) {
+    res.status(500).json(
+      helper.responseCustom({
+        success: false,
+        errors: error,
+      })
+    );
+    next(error);
+  }
+});
+
 router.get(
   "/info",
   middleware.verifyToken,

@@ -64,6 +64,27 @@ const getOneUserTransaction = async (data) => {
   return result;
 };
 
+const getAllUserTransactionByIdWallet = async (data) => {
+  const result = await db.query(
+    `SELECT 
+    tr.id_transaction, tr.id_transaction, tr.id_transaction_category, tr.id_user_wallet,
+    tr.title, tr.description, tr.type, tr.amount, tr.photo_transaction,
+    trca.category_name as transaction_category,
+    uswa.wallet_name,
+    tr.created_at, tr.updated_at
+    from transaction as tr
+    inner join transaction_category as trca on trca.id_transaction_category = tr.id_transaction_category
+    inner join user_wallet as uswa on uswa.id_user_wallet = tr.id_user_wallet
+    where
+    tr.id_user=? AND
+    uswa.id_user_wallet=?
+    order by tr.created_at desc
+    `,
+    [data.id_user, data.id_user_wallet]
+  );
+  return result;
+};
+
 const create = async (data) => {
   const id_transaction = "TR" + helper.generateUUID();
   const resultCreate = await db.query(
@@ -128,6 +149,7 @@ module.exports = {
   getOne,
   getAllUserTransaction,
   getOneUserTransaction,
+  getAllUserTransactionByIdWallet,
   create,
   edit,
   remove,

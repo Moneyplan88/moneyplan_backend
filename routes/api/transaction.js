@@ -58,20 +58,35 @@ router.get(
   "/user-transaction",
   middleware.verifyToken,
   async (req, res, next) => {
-    const { id_transaction } = req.query;
+    const { id_transaction, id_user_wallet } = req.query;
     try {
       const userData = user.userDataJWT(req);
       if (!id_transaction) {
-        // Fetch all user transaction
-        const transactionListUser = await transaction.getAllUserTransaction({
-          id_user: userData.id_user,
-        });
-        res.status(200).json(
-          helper.responseCustom({
-            success: true,
-            data: transactionListUser,
-          })
-        );
+        if (!id_user_wallet) {
+          // Fetch all user transaction
+          const transactionListUser = await transaction.getAllUserTransaction({
+            id_user: userData.id_user,
+          });
+          res.status(200).json(
+            helper.responseCustom({
+              success: true,
+              data: transactionListUser,
+            })
+          );
+        } else {
+          // Fetch all user transaction by wallet
+          const transactionListUserByWallet =
+            await transaction.getAllUserTransactionByIdWallet({
+              id_user: userData.id_user,
+              id_user_wallet,
+            });
+          res.status(200).json(
+            helper.responseCustom({
+              success: true,
+              data: transactionListUserByWallet,
+            })
+          );
+        }
       } else {
         // Fetch one user transaction
         const transactionUser = await transaction.getOneUserTransaction({

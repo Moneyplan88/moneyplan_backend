@@ -69,7 +69,7 @@ const generateUUID = () => {
 };
 
 const generateToken = (data) => {
-  return jwt.sign({ data }, tokenSecret, { expiresIn: "24h" });
+  return jwt.sign({ data }, tokenSecret, { expiresIn: "7d" });
 };
 
 const getDataFromJwt = (token) => {

@@ -170,7 +170,8 @@ router.post(
         description,
         type,
         amount,
-        photo_transaction: photo_transaction_filename,
+        photo_transaction:
+          "data/images/transaction_photo/" + photo_transaction_filename,
       });
 
       // Adjust Balance Wallet
@@ -258,9 +259,7 @@ router.put(
           // Delete previous photo
           fs.unlink(
             uploadedPath,
-            process.cwd() +
-              "/public/data/images/transaction_photo/" +
-              transactionData[0].photo_transaction,
+            process.cwd() + "/public/" + transactionData[0].photo_transaction,
             () => {}
           );
         } else {
@@ -275,7 +274,8 @@ router.put(
           description,
           type,
           amount,
-          photo_transaction: photo_transaction_filename,
+          photo_transaction:
+            "data/images/transaction_photo/" + photo_transaction_filename,
         });
 
         let resultAdjustWallet;
@@ -388,9 +388,7 @@ router.delete(
       const transactionData = await transaction.getOne(id_transaction);
       if (transactionData.length) {
         fs.unlink(
-          process.cwd() +
-            "/public/data/images/transaction_photo/" +
-            transactionData[0].photo_transaction,
+          process.cwd() + "/public/" + transactionData[0].photo_transaction,
           () => {}
         );
         const resultDelete = await transaction.remove(id_transaction);

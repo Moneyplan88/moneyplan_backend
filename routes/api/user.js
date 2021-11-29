@@ -55,7 +55,7 @@ router.post(
 
     // Get uploaded path
     var uploadedPath;
-    if (req.files[0]) uploadedPath = process.cwd() + "/" + req.files[0].path;
+    if (req.files[0]) uploadedPath = "./" + req.files[0].path;
 
     const { email, password, name, email_verified_date, dark_mode } = req.body;
     try {
@@ -66,9 +66,7 @@ router.post(
         photo_user_filename = helper.generateUUID() + req.files[0].filename;
         fs.rename(
           uploadedPath,
-          process.cwd() +
-            "/public/data/images/user_photo/" +
-            photo_user_filename,
+          "./public/data/images/user_photo/" + photo_user_filename,
           () => {}
         );
       } else {

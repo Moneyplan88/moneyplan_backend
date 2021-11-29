@@ -150,7 +150,7 @@ router.post(
 
     // Get uploaded path
     var uploadedPath;
-    if (req.files[0]) uploadedPath = process.cwd() + "/" + req.files[0].path;
+    if (req.files[0]) uploadedPath = "./" + req.files[0].path;
 
     const {
       id_transaction_category,
@@ -167,8 +167,7 @@ router.post(
           helper.generateUUID() + req.files[0].filename;
         fs.rename(
           uploadedPath,
-          process.cwd() +
-            "/public/data/images/transaction_photo/" +
+          "./public/data/images/transaction_photo/" +
             photo_transaction_filename,
           () => {}
         );
@@ -267,15 +266,14 @@ router.put(
             helper.generateUUID() + req.files[0].filename;
           fs.rename(
             uploadedPath,
-            process.cwd() +
-              "/public/data/images/transaction_photo/" +
+            "./public/data/images/transaction_photo/" +
               photo_transaction_filename,
             () => {}
           );
           // Delete previous photo
           fs.unlink(
             uploadedPath,
-            process.cwd() + "/public/" + transactionData[0].photo_transaction,
+            "./public/" + transactionData[0].photo_transaction,
             () => {}
           );
         } else {
@@ -404,10 +402,7 @@ router.delete(
     try {
       const transactionData = await transaction.getOne(id_transaction);
       if (transactionData.length) {
-        fs.unlink(
-          process.cwd() + "/public/" + transactionData[0].photo_transaction,
-          () => {}
-        );
+        fs.unlink("./public/" + transactionData[0].photo_transaction, () => {});
         const resultDelete = await transaction.remove(id_transaction);
 
         var resultAdjustWallet;

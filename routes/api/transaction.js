@@ -185,8 +185,9 @@ router.post(
         description,
         type,
         amount,
-        photo_transaction:
-          "data/images/transaction_photo/" + photo_transaction_filename,
+        photo_transaction: photo_transaction_filename
+          ? "data/images/transaction_photo/" + photo_transaction_filename
+          : null,
       });
 
       // Adjust Balance Wallet
@@ -289,8 +290,9 @@ router.put(
           description,
           type,
           amount,
-          photo_transaction:
-            "data/images/transaction_photo/" + photo_transaction_filename,
+          photo_transaction: photo_transaction_filename
+            ? "data/images/transaction_photo/" + photo_transaction_filename
+            : null,
         });
 
         let resultAdjustWallet;

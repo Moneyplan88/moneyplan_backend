@@ -79,7 +79,9 @@ router.post(
         email,
         password,
         name,
-        photo_user: photo_user_filename,
+        photo_user: photo_user_filename
+          ? "data/images/user_photo/" + photo_user_filename
+          : null,
         email_verified_date,
         dark_mode,
       });

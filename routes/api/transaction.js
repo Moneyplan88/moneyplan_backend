@@ -123,6 +123,50 @@ router.get(
   }
 );
 
+router.get(
+  "/user-transaction-top-spending",
+  middleware.verifyToken,
+  query("year").notEmpty().withMessage("year required"),
+  async (req, res, next) => {
+    // Validation handler
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json(
+        helper.responseCustom({
+          success: false,
+          errors: errors.array(),
+        })
+      );
+    }
+
+    const { month, year } = req.query;
+    try {
+      const userData = user.userDataJWT(req);
+      const transactionListTopSpending =
+        await transaction.getAllUserTransactionTopSpending({
+          id_user: userData.id_user,
+          year,
+          month,
+        });
+
+      res.status(200).json(
+        helper.responseCustom({
+          success: true,
+          data: transactionListTopSpending,
+        })
+      );
+    } catch (error) {
+      res.status(500).json(
+        helper.responseCustom({
+          success: false,
+          errors: error,
+        })
+      );
+      next(error);
+    }
+  }
+);
+
 router.post(
   "/add",
   middleware.verifyToken,

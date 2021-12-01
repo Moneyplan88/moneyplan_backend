@@ -97,7 +97,7 @@ const getAllUserTransactionTopSpending = async (data) => {
   }
   const result = await db.query(
     `SELECT 
-    tr.id_transaction, tr.id_transaction, tr.id_transaction_category, tr.id_user_wallet,
+    tr.id_transaction, tr.id_transaction_category, tr.id_user_wallet,
     tr.title, tr.description, tr.type, tr.amount, tr.photo_transaction,
     trca.category_name as transaction_category,
     uswa.wallet_name,

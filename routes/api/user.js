@@ -63,7 +63,8 @@ router.post(
 
       let photo_user_filename;
       if (req.files[0]) {
-        photo_user_filename = helper.generateUUID() + req.files[0].filename;
+        photo_user_filename =
+          helper.generateUUID() + req.files[0].filename.split(".").pop();
         fs.rename(
           uploadedPath,
           "./public/data/images/user_photo/" + photo_user_filename,

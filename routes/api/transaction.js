@@ -208,7 +208,7 @@ router.post(
       let photo_transaction_filename;
       if (req.files[0]) {
         photo_transaction_filename =
-          helper.generateUUID() + req.files[0].filename;
+          helper.generateUUID() + req.files[0].filename.split(".").pop();
         fs.rename(
           uploadedPath,
           "./public/data/images/transaction_photo/" +
@@ -307,7 +307,7 @@ router.put(
         let photo_transaction_filename;
         if (req.files[0]) {
           photo_transaction_filename =
-            helper.generateUUID() + req.files[0].filename;
+            helper.generateUUID() + req.files[0].filename.split(".").pop();
           fs.rename(
             uploadedPath,
             "./public/data/images/transaction_photo/" +

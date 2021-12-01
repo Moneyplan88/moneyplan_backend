@@ -4,7 +4,7 @@ const config = require("../config");
 const query = async (sql, params) => {
   const connection = await mysql.createConnection({
     ...config.db,
-    connectionLimit: 1,
+    connectionLimit: 5,
   });
   const [results] = await connection.execute(sql, params);
   return results;
